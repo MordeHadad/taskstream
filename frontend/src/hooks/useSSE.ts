@@ -5,7 +5,7 @@ export function useSSE() {
     const { addLog, setIsConnected, setActiveJob } = useTaskStore();
 
     useEffect(() => {
-        const eventSource = new EventSource('http://localhost:4000/api/stream');
+        const eventSource = new EventSource(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/stream`);
 
         eventSource.onopen = () => setIsConnected(true);
 

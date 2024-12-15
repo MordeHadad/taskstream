@@ -20,7 +20,7 @@ export default function Home() {
 
     const fetchTasks = useCallback(async () => {
         try {
-            const res = await fetch('http://localhost:4000/api/tasks');
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/tasks`);
             const data = await res.json();
             setQueue(data.queue);
             setHistory(data.history);
@@ -76,7 +76,7 @@ export default function Home() {
                 formData.append('files', file);
             });
 
-            await fetch('http://localhost:4000/api/tasks', {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/tasks`, {
                 method: 'POST',
                 body: formData
             });
