@@ -17,7 +17,7 @@ export const setupSSEHandler = (req: Request, res: Response) => {
     });
 };
 
-export const sendSSE = (data: Partial<ProgressEvent>) => {
+export const sendEvent = (data: Partial<ProgressEvent>) => {
     const payload = `data: ${JSON.stringify(data)}\n\n`;
     clients.forEach(client => {
         client.write(payload);

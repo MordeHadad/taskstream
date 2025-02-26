@@ -3,7 +3,7 @@ import cors from 'cors';
 import multer from 'multer';
 import * as path from 'path';
 import * as fs from 'fs';
-import { v4 as uuidv4 } from 'uuid';
+import * as crypto from 'crypto';
 import { setupSSEHandler } from './sse';
 import { getQueue, getHistory, addToQueue, current } from './worker';
 
@@ -27,7 +27,7 @@ app.post('/api/tasks', upload.array('files'), (req, res) => {
 
     const addedTasks = files.map(file => {
         const task = {
-            id: uuidv4(),
+            id: crypto.randomUUID(),
             status: 'queued' as const,
             filename: file.originalname,
             filePath: file.path,
@@ -50,6 +50,10 @@ app.get('/api/tasks', (_, res) => {
     });
 });
 
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+    });
+}
+
+export default app;

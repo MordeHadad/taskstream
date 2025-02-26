@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as crypto from 'crypto';
 import { Task } from './types';
-import { sendSSE } from './sse';
+import { sendEvent } from './sse';
 
 export const queue: Task[] = [];
 export const history: Task[] = [];
@@ -24,11 +24,11 @@ const startWorker = async () => {
         current = queue.shift()!;
         current.status = 'running';
 
-        sendSSE({ jobId: current.id, progress: 0, log: `Starting hash for ${current.filename}...`, status: current.status });
+        sendEvent({ jobId: current.id, progress: 0, log: `Starting hash for ${current.filename}...`, status: current.status });
 
         if (!current.filePath || !fs.existsSync(current.filePath)) {
             current.status = 'failed';
-            sendSSE({ jobId: current.id, progress: 0, log: `Error: File missing!`, status: current.status });
+            sendEvent({ jobId: current.id, progress: 0, log: `Error: File missing!`, status: current.status });
             history.push(current);
             continue;
         }
@@ -49,7 +49,7 @@ const startWorker = async () => {
 
                 const progress = Math.min(100, Math.round((processedSize / totalSize) * 100));
 
-                sendSSE({
+                sendEvent({
                     jobId: current.id,
                     progress,
                     log: `Hashing... ${progress}% (${(processedSize / 1024 / 1024).toFixed(2)} MB)`,
@@ -62,7 +62,7 @@ const startWorker = async () => {
             current.hash = hash.digest('hex');
             current.status = 'completed';
 
-            sendSSE({
+            sendEvent({
                 jobId: current.id,
                 progress: 100,
                 log: `Complete! SHA-256: ${current.hash}`,
@@ -72,7 +72,7 @@ const startWorker = async () => {
 
         } catch (err: any) {
             current.status = 'failed';
-            sendSSE({
+            sendEvent({
                 jobId: current.id,
                 progress: processedSize ? Math.round((processedSize / totalSize) * 100) : 0,
                 log: `Error: ${err.message}`,
